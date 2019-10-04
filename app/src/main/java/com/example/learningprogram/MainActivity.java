@@ -1,7 +1,9 @@
 package com.example.learningprogram;
 
+import android.animation.LayoutTransition;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Spinner;
 
@@ -63,7 +65,8 @@ public class MainActivity extends AppCompatActivity {
         final List<String> spinnerItems = mLearningProgramProvider.providerLectors();
         Collections.sort(spinnerItems);
         spinnerItems.add(POSITION_ALL, getResources().getString(R.string.all));
-        spinner.setAdapter(new LectorSpinnerAdapter(spinnerItems));
+        LectorSpinnerAdapter adapter = new LectorSpinnerAdapter(spinnerItems);
+        spinner.setAdapter(adapter);
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override

@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.learningprogram.R;
@@ -23,7 +24,13 @@ import java.util.List;
  **/
 public class LecturesAdapter extends RecyclerView.Adapter<LecturesAdapter.BaseViewHolder> {
 
+    /**
+     * Тип элемента списка - лекция
+     */
     private static final int ITEM_VIEW_TYPE_LECTURE = 0;
+    /**
+     * Тип элемента списка - неделя
+     */
     private static final int ITEM_VIEW_TYPE_WEEK = 1;
 
     private final Resources mResources;
@@ -86,7 +93,10 @@ public class LecturesAdapter extends RecyclerView.Adapter<LecturesAdapter.BaseVi
         return mAdapterItems == null ? 0 : mAdapterItems.size();
     }
 
-    public void setLectures(List<Lecture> lectures) {
+    /**
+     * Устанавливает список лекций в адаптер
+     */
+    public void setLectures(@Nullable List<Lecture> lectures) {
         if (lectures == null) {
             mLectures = new ArrayList<>();
             mAdapterItems = new ArrayList<>();
