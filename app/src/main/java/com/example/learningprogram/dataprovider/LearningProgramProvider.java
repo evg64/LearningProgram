@@ -90,7 +90,7 @@ public class LearningProgramProvider {
 
     /**
      * Возвращает лекцию, следующую за переданной датой. Если передана дата позже, чем последняя лекция,
-     * будет передана последняя лекция.
+     * будет возвращена последняя лекция.
      */
     public Lecture getLectureNextTo(Date date) {
         SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT_PATTERN, Locale.getDefault());
