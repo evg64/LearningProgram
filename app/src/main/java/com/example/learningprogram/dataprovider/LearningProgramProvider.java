@@ -1,7 +1,14 @@
 package com.example.learningprogram.dataprovider;
 
-import com.example.learningprogram.models.Lecture;
+import androidx.annotation.Nullable;
 
+import com.example.learningprogram.models.Lecture;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -19,41 +26,9 @@ import java.util.Set;
  **/
 public class LearningProgramProvider {
     private static final String DATE_FORMAT_PATTERN = "dd.MM.yyyy";
+    public static final String LECTURES_URL = "http://landsovet.ru/learning_program.json";
 
-    private List<Lecture> mLectures = Arrays.asList(
-            new Lecture(1, "12.11.2019", "Вводное занятие", "Соколов"),
-            new Lecture(2, "14.11.2019", "View, Layouts", "Соколов"),
-            new Lecture(3, "16.11.2019", "Drawables", "Соколов"),
-            new Lecture(4, "19.11.2019", "Activity", "Сафарян"),
-            new Lecture(5, "21.11.2019", "Адаптеры", "Чумак"),
-            new Lecture(6, "23.11.2019", "UI: практика", "Кудрявцев"),
-            new Lecture(7, "26.11.2019", "Custom View", "Кудрявцев"),
-            new Lecture(8, "28.11.2019", "Touch events", "Бильчук"),
-            new Lecture(9, "30.11.2019", "Сложные жесты", "Соколов"),
-            new Lecture(10, "03.12.2019", "Layout & Measurement", "Кудрявцев"),
-            new Lecture(11, "05.12.2019", "Custom ViewGroup", "Кудрявцев"),
-            new Lecture(12, "07.12.2019", "Анимации", "Чумак"),
-            new Lecture(13, "10.12.2019", "Практика View", "Соколов"),
-            new Lecture(14, "12.12.2019", "Фрагменты: база", "Бильчук"),
-            new Lecture(15, "14.12.2019", "Фрагменты: практика", "Соколов"),
-            new Lecture(16, "17.12.2019", "Фоновая работа", "Чумак"),
-            new Lecture(17, "19.12.2019", "Абстракции фон/UI", "Леонидов"),
-            new Lecture(18, "21.12.2019", "Фон: практика", "Чумак"),
-            new Lecture(19, "14.01.2020", "BroadcastReceiver", "Бильчук"),
-            new Lecture(20, "16.01.2020", "Runtime permissions", "Кудрявцев"),
-            new Lecture(21, "18.01.2020", "Service", "Леонидов"),
-            new Lecture(22, "21.01.2020", "Service: практика", "Леонидов"),
-            new Lecture(23, "23.01.2020", "Service: биндинг", "Леонидов"),
-            new Lecture(24, "25.01.2020", "Preferences", "Сафарян"),
-            new Lecture(25, "28.01.2020", "SQLite", "Бильчук"),
-            new Lecture(26, "30.01.2020", "SQLite: Room", "Соколов"),
-            new Lecture(27, "01.02.2020", "ContentProvider", "Сафарян"),
-            new Lecture(28, "04.02.2020", "FileProvider", "Соколов"),
-            new Lecture(29, "06.02.2020", "Геолокация", "Леонидов"),
-            new Lecture(30, "08.02.2020", "Material", "Чумак"),
-            new Lecture(31, "11.02.2020", "UI-тесты", "Сафарян"),
-            new Lecture(32, "13.02.2020", "Финал", "Соколов")
-    );
+    private List<Lecture> mLectures;
 
     /**
      * Возвращает все лекции курса
@@ -65,7 +40,7 @@ public class LearningProgramProvider {
     /**
      * Возвращает список лекторов курса
      */
-    public List<String> providerLectors() {
+    public List<String> provideLectors() {
         Set<String> lectorsSet = new HashSet<>();
         for (Lecture lecture : mLectures) {
             lectorsSet.add(lecture.getLector());
@@ -105,5 +80,33 @@ public class LearningProgramProvider {
             }
         }
         return mLectures.get(mLectures.size() - 1);
+    }
+
+    @Nullable
+    public List<Lecture> loadLecturesFromWeb() {
+        if (mLectures != null) {
+            return mLectures;
+        }
+        InputStream is = null;
+        try {
+            final URL url = new URL(LECTURES_URL);
+            URLConnection connection = url.openConnection();
+            is = connection.getInputStream();
+            ObjectMapper mapper = new ObjectMapper();
+            Lecture[] lectures = mapper.readValue(is, Lecture[].class);
+            mLectures = Arrays.asList(lectures);
+            return new ArrayList<>(mLectures);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
     }
 }
