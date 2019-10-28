@@ -1,12 +1,13 @@
 package com.example.learningprogram;
 
-import android.animation.LayoutTransition;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -19,6 +20,7 @@ import com.example.learningprogram.dataprovider.LearningProgramProvider;
 import com.example.learningprogram.models.DisplayMode;
 import com.example.learningprogram.models.Lecture;
 
+import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -32,14 +34,14 @@ public class MainActivity extends AppCompatActivity {
 
     private LearningProgramProvider mLearningProgramProvider = new LearningProgramProvider();
     private LecturesAdapter mLecturesAdapter;
+    private View mLoadingView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        initRecyclerView(savedInstanceState == null);
-        initLectorsSpinner();
-        initDisplayModeSpinner();
+        mLoadingView = findViewById(R.id.loading_view);
+        new LoadLecturesTask(this, savedInstanceState == null).execute();
     }
 
     private void initRecyclerView(boolean isFirstCreate) {
@@ -62,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initLectorsSpinner() {
         Spinner spinner = findViewById(R.id.lectors_spinner);
-        final List<String> spinnerItems = mLearningProgramProvider.providerLectors();
+        final List<String> spinnerItems = mLearningProgramProvider.provideLectors();
         Collections.sort(spinnerItems);
         spinnerItems.add(POSITION_ALL, getResources().getString(R.string.all));
         LectorSpinnerAdapter adapter = new LectorSpinnerAdapter(spinnerItems);
@@ -97,5 +99,43 @@ public class MainActivity extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
+    }
+
+    private static class LoadLecturesTask extends AsyncTask<Void, Void, List<Lecture>> {
+        private final WeakReference<MainActivity> mActivityRef;
+        private final LearningProgramProvider mProvider;
+        private final boolean mIsFirstCreate;
+
+        private LoadLecturesTask(@NonNull MainActivity activity, boolean isFirstCreate) {
+            mActivityRef = new WeakReference<>(activity);
+            mProvider = activity.mLearningProgramProvider;
+            mIsFirstCreate = isFirstCreate;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            MainActivity activity = mActivityRef.get();
+            if (activity != null) {
+                activity.mLoadingView.setVisibility(View.VISIBLE);
+            }
+        }
+
+        @Override
+        protected List<Lecture> doInBackground(Void... arg) {
+            return mProvider.loadLecturesFromWeb();
+        }
+
+        @Override
+        protected void onPostExecute(List<Lecture> lectures) {
+            MainActivity activity = mActivityRef.get();
+            activity.mLoadingView.setVisibility(View.GONE);
+            if (lectures == null) {
+                Toast.makeText(activity, R.string.failed_to_load_lectures, Toast.LENGTH_SHORT).show();
+            } else {
+                activity.initRecyclerView(mIsFirstCreate);
+                activity.initLectorsSpinner();
+                activity.initDisplayModeSpinner();
+            }
+        }
     }
 }

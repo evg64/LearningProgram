@@ -2,6 +2,11 @@ package com.example.learningprogram.models;
 
 import androidx.annotation.NonNull;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -17,17 +22,20 @@ public class Lecture {
     private final String mTheme;
     private final String mLector;
     private final int weekIndex;
+    private final List<String> mSubtopics;
 
+    @JsonCreator
     public Lecture(
-            int number,
-            @NonNull String date,
-            @NonNull String theme,
-            @NonNull String lector
-    ) {
+            @JsonProperty("number") int number,
+            @JsonProperty("date") @NonNull String date,
+            @JsonProperty("theme") @NonNull String theme,
+            @JsonProperty("lector") @NonNull String lector,
+            @JsonProperty("subtopics") @NonNull List<String> subtopics) {
         mNumber = number;
         mDate = date;
         mTheme = theme;
         mLector = lector;
+        mSubtopics = new ArrayList<>(subtopics);
         weekIndex = (mNumber - 1) / LECTURES_PER_WEEK;
     }
 
@@ -44,12 +52,13 @@ public class Lecture {
                 weekIndex == lecture.weekIndex &&
                 Objects.equals(mDate, lecture.mDate) &&
                 Objects.equals(mTheme, lecture.mTheme) &&
-                Objects.equals(mLector, lecture.mLector);
+                Objects.equals(mLector, lecture.mLector) &&
+                Objects.equals(mSubtopics, lecture.mSubtopics);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mNumber, mDate, mTheme, mLector, weekIndex);
+        return Objects.hash(mNumber, mDate, mTheme, mLector, weekIndex, mSubtopics);
     }
 
     public int getNumber() {
@@ -70,5 +79,9 @@ public class Lecture {
 
     public int getWeekIndex() {
         return weekIndex;
+    }
+
+    public List<String> getSubtopics() {
+        return mSubtopics == null ? null : new ArrayList<>(mSubtopics);
     }
 }
