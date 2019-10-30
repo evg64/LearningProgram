@@ -1,5 +1,6 @@
 package com.example.learningprogram.dataprovider;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.learningprogram.models.Lecture;
@@ -26,15 +27,16 @@ import java.util.Set;
  **/
 public class LearningProgramProvider {
     private static final String DATE_FORMAT_PATTERN = "dd.MM.yyyy";
-    public static final String LECTURES_URL = "http://landsovet.ru/learning_program.json";
+    private static final String LECTURES_URL = "http://landsovet.ru/learning_program.json";
 
     private List<Lecture> mLectures;
 
     /**
      * Возвращает все лекции курса
      */
-    public List<Lecture> provideLectures() {
-        return new ArrayList<>(mLectures);
+    @Nullable
+    public List<Lecture> getLectures() {
+        return mLectures == null ? null : new ArrayList<>(mLectures);
     }
 
     /**
@@ -67,9 +69,10 @@ public class LearningProgramProvider {
      * Возвращает лекцию, следующую за переданной датой. Если передана дата позже, чем последняя лекция,
      * будет возвращена последняя лекция.
      */
-    public Lecture getLectureNextTo(Date date) {
+    @NonNull
+    public Lecture getLectureNextTo(@NonNull List<Lecture> lectures, @NonNull Date date) {
         SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT_PATTERN, Locale.getDefault());
-        for (Lecture lecture : mLectures) {
+        for (Lecture lecture : lectures) {
             try {
                 Date lectureDate = format.parse(lecture.getDate());
                 if (lectureDate != null && lectureDate.after(date)) {
@@ -79,7 +82,7 @@ public class LearningProgramProvider {
                 e.printStackTrace();
             }
         }
-        return mLectures.get(mLectures.size() - 1);
+        return lectures.get(lectures.size() - 1);
     }
 
     @Nullable
