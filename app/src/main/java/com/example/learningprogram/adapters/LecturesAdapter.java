@@ -38,6 +38,8 @@ public class LecturesAdapter extends RecyclerView.Adapter<LecturesAdapter.BaseVi
     private List<Lecture> mLectures;
     private DisplayMode mDisplayMode = DisplayMode.UNGROUPED;
 
+    private OnLectureClickListener mClickListener;
+
     public LecturesAdapter(Resources resources) {
         mResources = resources;
     }
@@ -125,6 +127,13 @@ public class LecturesAdapter extends RecyclerView.Adapter<LecturesAdapter.BaseVi
     }
 
     /**
+     * Устанавливает обработчик нажатия на элементы списка
+     */
+    public void setClickListener(@Nullable OnLectureClickListener clickListener) {
+        mClickListener = clickListener;
+    }
+
+    /**
      * Возвращает позицию лекции в элементах адаптера
      *
      * @param lecture какую лекцию найти
@@ -153,7 +162,7 @@ public class LecturesAdapter extends RecyclerView.Adapter<LecturesAdapter.BaseVi
         }
     }
 
-    private static class LectureHolder extends BaseViewHolder {
+    private class LectureHolder extends BaseViewHolder {
         private final TextView mNumber;
         private final TextView mDate;
         private final TextView mTheme;
@@ -172,6 +181,11 @@ public class LecturesAdapter extends RecyclerView.Adapter<LecturesAdapter.BaseVi
             mDate.setText(lecture.getDate());
             mTheme.setText(lecture.getTheme());
             mLector.setText(lecture.getLector());
+            itemView.setOnClickListener(v -> {
+                if (mClickListener != null) {
+                    mClickListener.onItemClick(lecture);
+                }
+            });
         }
     }
 

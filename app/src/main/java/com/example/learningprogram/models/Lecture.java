@@ -1,5 +1,8 @@
 package com.example.learningprogram.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import androidx.annotation.NonNull;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -14,7 +17,7 @@ import java.util.Objects;
  *
  * @author Evgeny Chumak
  **/
-public class Lecture {
+public class Lecture implements Parcelable {
     private static final int LECTURES_PER_WEEK = 3;
 
     private final int mNumber;
@@ -38,6 +41,42 @@ public class Lecture {
         mSubtopics = new ArrayList<>(subtopics);
         weekIndex = (mNumber - 1) / LECTURES_PER_WEEK;
     }
+
+    protected Lecture(Parcel in) {
+        mNumber = in.readInt();
+        mDate = in.readString();
+        mTheme = in.readString();
+        mLector = in.readString();
+        weekIndex = in.readInt();
+        mSubtopics = in.createStringArrayList();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(mNumber);
+        dest.writeString(mDate);
+        dest.writeString(mTheme);
+        dest.writeString(mLector);
+        dest.writeInt(weekIndex);
+        dest.writeStringList(mSubtopics);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<Lecture> CREATOR = new Creator<Lecture>() {
+        @Override
+        public Lecture createFromParcel(Parcel in) {
+            return new Lecture(in);
+        }
+
+        @Override
+        public Lecture[] newArray(int size) {
+            return new Lecture[size];
+        }
+    };
 
     @Override
     public boolean equals(Object o) {
